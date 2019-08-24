@@ -2,22 +2,30 @@ package com.mygdx.game.units;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Vector2;
-import com.mygdx.game.MyGdxGame;
+import com.mygdx.game.SimplestGdxGameTanks;
 import com.mygdx.game.Weapon;
+import com.mygdx.game.utils.TankOwner;
 
 public class PlayerTank extends Tank {
-    public PlayerTank(MyGdxGame game) {
+    int lifes;
+
+    public PlayerTank(SimplestGdxGameTanks game, TextureAtlas atlas) {
         super(game);
-        this.texture = new Texture("tank.png");
-        this.weapon = new Weapon();
+        this.ownerType = TankOwner.HUMAN;
+        this.texture = atlas.findRegion("tank");
+        this.textureHp = atlas.findRegion("bar");
+        this.weapon = new Weapon(atlas);
         this.position = new Vector2(100.0f, 100.0f);
         this.speed = 100;
-        this.width = texture.getWidth();
-        this.height = texture.getHeight();
+        this.width = texture.getRegionWidth();
+        this.height = texture.getRegionHeight();
         this.hpMax = 10;
         this.hp = this.hpMax;
+        this.circle = new Circle(position.x, position.y, (float) (width + height / 1.8f));
+        this.lifes = 7;
     }
 
     public void checkMovement(float dt) {
@@ -45,13 +53,18 @@ public class PlayerTank extends Tank {
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE) || Gdx.input.isTouched()) {
             this.fire();
         }
-        if (fireTimer < weapon.getFirePeriod()) {
-            fireTimer += dt;
-        }
 
         float mx = Gdx.input.getX();
         float my = Gdx.graphics.getHeight() - Gdx.input.getY();
 
         rotateTurretToPoint(mx, my, dt);
+
+        super.update(dt);
+    }
+
+    @Override
+    public void destroy() {
+        lifes--;
+        hp = hpMax;
     }
 }
