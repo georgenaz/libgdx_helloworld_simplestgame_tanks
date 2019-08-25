@@ -1,6 +1,6 @@
 
 game.pack.png
-size: 256,64
+size: 512,128
 format: RGBA8888
 filter: Nearest,Nearest
 repeat: none
@@ -13,7 +13,7 @@ bar
   index: -1
 grass
   rotate: false
-  xy: 138, 30
+  xy: 286, 94
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
@@ -25,31 +25,38 @@ shot
   orig: 16, 16
   offset: 0, 0
   index: -1
+simplest_button
+  rotate: false
+  xy: 164, 96
+  size: 120, 30
+  orig: 120, 30
+  offset: 0, 0
+  index: -1
 tank
   rotate: false
-  xy: 36, 30
+  xy: 164, 62
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 tank_bot
   rotate: false
-  xy: 104, 30
+  xy: 232, 62
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 tank_gun
   rotate: false
-  xy: 70, 30
+  xy: 198, 62
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
-wall_block
+walls
   rotate: false
   xy: 2, 30
-  size: 32, 32
-  orig: 32, 32
+  size: 160, 96
+  orig: 160, 96
   offset: 0, 0
   index: -1

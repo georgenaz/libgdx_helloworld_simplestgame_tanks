@@ -1,23 +1,25 @@
 package com.mygdx.game.units;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Vector2;
+import com.mygdx.game.GameScreeen;
 import com.mygdx.game.SimplestGdxGameTanks;
+import com.mygdx.game.utils.Direction;
 import com.mygdx.game.utils.TankOwner;
 import com.mygdx.game.utils.Utils;
 import com.mygdx.game.Weapon;
 
 public abstract class Tank {
-    SimplestGdxGameTanks game;
+    GameScreeen gameScreen;
     TankOwner ownerType;
     Weapon weapon;
     TextureRegion texture;
     TextureRegion textureHp;
     Vector2 position;
+    Vector2 tmp;
     Circle circle;
 
     int hp;
@@ -32,8 +34,9 @@ public abstract class Tank {
     int width;
     int height;
 
-    public Tank(SimplestGdxGameTanks game) {
-        this.game = game;
+    public Tank(GameScreeen gameScreen) {
+        this.gameScreen = gameScreen;
+        this.tmp = new Vector2(0.0f, 0.0f);
     }
 
     public Circle getCircle() {
@@ -52,6 +55,28 @@ public abstract class Tank {
         batch.setColor(0, 1, 0, 0.6f);
         batch.draw(textureHp, position.x - width / 2, position.y + height / 2, textureHp.getRegionWidth() * ((float) hp / hpMax) , 8);
         batch.setColor(1, 1, 1, 1);
+    }
+
+    public void move(Direction direction, float dt) {
+        if (position.x < 0.0f + this.width / 2) {
+            position.x = 0.0f + this.width / 2;
+        }
+        if (position.x > Gdx.graphics.getWidth() - this.width / 2) {
+            position.x = Gdx.graphics.getWidth() - this.width / 2;
+        }
+        if (position.y < 0.0f + this.height / 2) {
+            position.y = 0.0f + this.height / 2;
+        }
+        if (position.y > Gdx.graphics.getHeight() - this.height / 2) {
+            position.y = Gdx.graphics.getHeight() - this.height / 2;
+        }
+
+        tmp.set(position);
+        tmp.add(speed * direction.getVx() * dt, speed * direction.getVy() * dt);
+        if (gameScreen.getMap().isAreaCleared(tmp.x, tmp.y, width / 2)) {
+            angle = direction.getAngle();
+            position.set(tmp);
+        }
     }
 
     public void rotateTurretToPoint(float pointX, float pointY, float dt) {
@@ -77,26 +102,17 @@ public abstract class Tank {
         if (fireTimer >= weapon.getFirePeriod()) {
             fireTimer = 0.0f;
             float angleRad = (float) Math.toRadians(angleTurret);
-            game.getBulletEmitter().activate(this, position.x, position.y, 320.0f * (float) Math.cos(angleRad), 320.0f * (float) Math.sin(angleRad), weapon.getDamage());
+            gameScreen.getBulletEmitter().activate(
+                    this, position.x, position.y,
+                    weapon.getProjectileSpeed() * (float) Math.cos(angleRad), weapon.getProjectileSpeed() * (float) Math.sin(angleRad),
+                    weapon.getDamage(), weapon.getProjectileLifeTime()
+            );
         }
     }
 
     public void update(float dt) {
         if (fireTimer <= weapon.getFirePeriod()) {
             fireTimer += dt;
-        }
-
-        if (position.x < 0.0f + this.width / 2) {
-            position.x = 0.0f + this.width / 2;
-        }
-        if (position.x > Gdx.graphics.getWidth() - this.width / 2) {
-            position.x = Gdx.graphics.getWidth() - this.width / 2;
-        }
-        if (position.y < 0.0f + this.height / 2) {
-            position.y = 0.0f + this.height / 2;
-        }
-        if (position.y > Gdx.graphics.getHeight() - this.height / 2) {
-            position.y = Gdx.graphics.getHeight() - this.height / 2;
         }
 
         circle.setPosition(position);
