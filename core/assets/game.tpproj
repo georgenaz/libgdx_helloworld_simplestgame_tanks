@@ -32,7 +32,7 @@ limitMemory=true
 useIndexes=true
 
 scaleFactors=[{suffix:"",factor:1,resampling:bicubic}]
-inputFiles=[{path:tank.png,type:Input,regionName:null},{path:bar.png,type:Input,regionName:null},{path:grass.png,type:Input,regionName:null},{path:shot.png,type:Input,regionName:null},{path:tank_bot.png,type:Input,regionName:null},{path:tank_gun.png,type:Input,regionName:null},{path:simplest_button.png,type:Input,regionName:null},{path:walls.png,type:Input,regionName:null}]
+inputFiles=[{path:tank.png,type:Input,regionName:null},{path:bar.png,type:Input,regionName:null},{path:grass.png,type:Input,regionName:null},{path:shot.png,type:Input,regionName:null},{path:tank_bot.png,type:Input,regionName:null},{path:tank_gun.png,type:Input,regionName:null},{path:simplest_button.png,type:Input,regionName:null},{path:walls.png,type:Input,regionName:null},{path:power_ups.png,type:Input,regionName:null},{path:obstacles.png,type:Input,regionName:null},{path:cursor.png,type:Input,regionName:null}]
 
 
 -PROJ-

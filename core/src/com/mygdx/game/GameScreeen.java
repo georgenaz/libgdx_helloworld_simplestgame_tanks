@@ -5,6 +5,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -25,11 +26,16 @@ public class GameScreeen implements Screen {
     private float gameTimer;
     private Stage stage;
     private boolean paused;
+    private Vector2 mousePosition;
 
     private static final boolean FRIENDLY_FIRE = false;
 
     public GameScreeen(SpriteBatch batch) {
         this.batch = batch;
+    }
+
+    public Vector2 getMousePosition() {
+        return mousePosition;
     }
 
     public Map getMap() {
@@ -54,6 +60,7 @@ public class GameScreeen implements Screen {
         botEmitter = new BotEmitter(this, atlas);
         gameTimer = 5.0f;
         stage = new Stage();
+        mousePosition = new Vector2();
 
         Skin skin = new Skin();
         skin.add("simpleButton", new TextureRegion(atlas.findRegion("simplest_button")));
@@ -87,8 +94,13 @@ public class GameScreeen implements Screen {
     @Override
     public void render(float delta) {
         update(delta);
-        Gdx.gl.glClearColor(0, 0.4f, 0, 1);
+        Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+//        ScreenManager.getInstance().getCamera().position.set(playerTank.getPosition().x, playerTank.getPosition().y, 0);
+//        ScreenManager.getInstance().getCamera().update();
+
+        batch.setProjectionMatrix(ScreenManager.getInstance().getCamera().combined);
         batch.begin();
         map.render(batch);
         playerTank.render(batch);
@@ -100,6 +112,8 @@ public class GameScreeen implements Screen {
     }
 
     public void update(float dt) {
+        mousePosition.set(Gdx.input.getX(), Gdx.input.getY());
+        ScreenManager.getInstance().getViewport().unproject(mousePosition);
         if (!paused) {
             gameTimer += dt;
             if (gameTimer > 5.0f) {
@@ -157,7 +171,7 @@ public class GameScreeen implements Screen {
 
     @Override
     public void resize(int width, int height) {
-
+        ScreenManager.getInstance().resize(width, height);
     }
 
     @Override

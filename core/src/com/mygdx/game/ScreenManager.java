@@ -2,7 +2,11 @@ package com.mygdx.game;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 
 public class ScreenManager {
     public enum ScreenType {
@@ -17,12 +21,34 @@ public class ScreenManager {
 
     private ScreenManager(){}
 
+    public static final int WORLD_WIDTH = 1280;
+    public static final int WORLD_HEIGHT = 720;
+
     private Game game;
     private GameScreeen gameScreen;
+    private Viewport viewport;
+    private Camera camera;
+
+    public Viewport getViewport() {
+        return viewport;
+    }
+
+    public Camera getCamera() {
+        return camera;
+    }
 
     public void init(Game game, SpriteBatch batch) {
         this.game = game;
+        this.camera = new OrthographicCamera(WORLD_WIDTH, WORLD_HEIGHT);
+        this.camera.position.set(WORLD_WIDTH / 2, WORLD_HEIGHT / 2, 0);
+        this.camera.update();
+        this.viewport = new FitViewport(WORLD_WIDTH, WORLD_HEIGHT, camera);
         this.gameScreen = new GameScreeen(batch);
+    }
+
+    public void resize(int width, int height) {
+        viewport.update(width, height);
+        viewport.apply();
     }
 
     public void setScreen(ScreenType screenType) {
