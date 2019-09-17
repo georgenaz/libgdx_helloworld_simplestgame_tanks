@@ -12,14 +12,19 @@ import com.mygdx.game.ScreenManager;
 import com.mygdx.game.SimplestGdxGameTanks;
 import com.mygdx.game.Weapon;
 import com.mygdx.game.utils.Direction;
+import com.mygdx.game.utils.KeysControl;
 import com.mygdx.game.utils.TankOwner;
 
 public class PlayerTank extends Tank {
+    KeysControl keysControl;
+    int index;
     int score;
     int lifes;
 
-    public PlayerTank(GameScreeen game, TextureAtlas atlas) {
+    public PlayerTank(int index, GameScreeen game, KeysControl keysControl, TextureAtlas atlas) {
         super(game);
+        this.index = index;
+        this.keysControl = keysControl;
         this.ownerType = TankOwner.HUMAN;
         this.texture = atlas.findRegion("tank");
         this.textureHp = atlas.findRegion("bar");
@@ -36,20 +41,20 @@ public class PlayerTank extends Tank {
     }
 
     public void renderHUD(SpriteBatch batch, BitmapFont font24) {
-        font24.draw(batch, "Score: " + score + "\nLives: " + this.lifes, 10, 700);
+        font24.draw(batch, "Score: " + score + "\nLives: " + this.lifes, 10 + (index - 1) * 200, 700);
     }
 
     public void checkMovement(float dt) {
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A)) {
+        if (Gdx.input.isKeyPressed(keysControl.getLeft())) {
             move(Direction.LEFT, dt);
         }
-        else if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.D)) {
+        else if (Gdx.input.isKeyPressed(keysControl.getRight())) {
             move(Direction.RIGHT, dt);
         }
-        else if (Gdx.input.isKeyPressed(Input.Keys.UP) || Gdx.input.isKeyPressed(Input.Keys.W)) {
+        else if (Gdx.input.isKeyPressed(keysControl.getUp())) {
             move(Direction.UP, dt);
         }
-        else if (Gdx.input.isKeyPressed(Input.Keys.DOWN) || Gdx.input.isKeyPressed(Input.Keys.S)) {
+        else if (Gdx.input.isKeyPressed(keysControl.getDown())) {
             move(Direction.DOWN, dt);
         }
     }

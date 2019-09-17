@@ -75,9 +75,25 @@ public class BotTank extends Tank {
         }
         move(preferredDirection, dt);
 
-        float dst = this.position.dst(gameScreen.getPlayerTank().getPosition());
+        PlayerTank preferredTarget = null;
+        if (gameScreen.getPlayerTanks().size() == 1) {
+            preferredTarget = gameScreen.getPlayerTanks().get(0);
+        }
+        else {
+            float minDist = Float.MAX_VALUE;
+            for (int i = 0; i < gameScreen.getPlayerTanks().size(); i++) {
+                PlayerTank player = gameScreen.getPlayerTanks().get(i);
+                float dst = this.position.dst(player.getPosition());
+                if (dst < minDist) {
+                    minDist = dst;
+                    preferredTarget = player;
+                }
+            }
+        }
+
+        float dst = this.position.dst(preferredTarget.getPosition());
         if (dst < pursuitRadius) {
-            rotateTurretToPoint(gameScreen.getPlayerTank().getPosition().x, gameScreen.getPlayerTank().getPosition().y, dt);
+            rotateTurretToPoint(preferredTarget.getPosition().x, preferredTarget.getPosition().y, dt);
             fire();
         }
 

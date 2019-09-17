@@ -9,24 +9,33 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+//import com.badlogic.gdx.scenes.scene2d.ui.List;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.mygdx.game.units.BotTank;
 import com.mygdx.game.units.PlayerTank;
 import com.mygdx.game.units.Tank;
+import com.mygdx.game.utils.KeysControl;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class GameScreeen implements Screen {
     private SpriteBatch batch;
     private BitmapFont font24;
     private Map map;
-    private PlayerTank playerTank;
+
+    private List<PlayerTank> playerTanks;
+
     private BulletEmitter bulletEmitter;
     private BotEmitter botEmitter;
     private float gameTimer;
+    private float worldTimer;
     private Stage stage;
     private boolean paused;
     private Vector2 mousePosition;
+    private TextureRegion cursor;
 
     private static final boolean FRIENDLY_FIRE = false;
 
@@ -46,16 +55,19 @@ public class GameScreeen implements Screen {
         return bulletEmitter;
     }
 
-    public PlayerTank getPlayerTank() {
-        return playerTank;
+    public List<PlayerTank> getPlayerTanks() {
+        return playerTanks;
     }
 
     @Override
     public void show() {
         TextureAtlas atlas = new TextureAtlas("game.pack.atlas");
         font24 = new BitmapFont(Gdx.files.internal("font24.fnt"));
+        cursor = new TextureRegion(atlas.findRegion("cursor"));
         map = new Map(atlas);
-        playerTank = new PlayerTank(this, atlas);
+        playerTanks = new ArrayList<>();
+        playerTanks.add(new PlayerTank(1, this, KeysControl.createStandardControl1(), atlas));
+        playerTanks.add(new PlayerTank(2, this, KeysControl.createStandardControl2(), atlas));
         bulletEmitter = new BulletEmitter(atlas);
         botEmitter = new BotEmitter(this, atlas);
         gameTimer = 5.0f;
@@ -89,6 +101,8 @@ public class GameScreeen implements Screen {
         group.addActor(exitButton);
         group.setPosition(1140, 0);
         stage.addActor(group);
+        Gdx.input.setInputProcessor(stage);
+//        Gdx.input.setCursorCatched(true);
     }
 
     @Override
@@ -103,10 +117,23 @@ public class GameScreeen implements Screen {
         batch.setProjectionMatrix(ScreenManager.getInstance().getCamera().combined);
         batch.begin();
         map.render(batch);
-        playerTank.render(batch);
+
+        for (int i = 0; i < playerTanks.size(); i++) {
+            playerTanks.get(i).render(batch);
+        }
         botEmitter.render(batch);
         bulletEmitter.render(batch);
-        playerTank.renderHUD(batch, font24);
+
+        for (int i = 0; i < playerTanks.size(); i++) {
+            playerTanks.get(i).renderHUD(batch, font24);
+        }
+
+        batch.draw(cursor,
+            mousePosition.x - cursor.getRegionWidth() / 2, mousePosition.y - cursor.getRegionHeight() / 2,
+            cursor.getRegionWidth()/2, cursor.getRegionHeight()/2,
+            cursor.getRegionWidth(), cursor.getRegionHeight(),
+            1, 1, -worldTimer * 50);
+
         batch.end();
         stage.draw();
     }
@@ -114,6 +141,7 @@ public class GameScreeen implements Screen {
     public void update(float dt) {
         mousePosition.set(Gdx.input.getX(), Gdx.input.getY());
         ScreenManager.getInstance().getViewport().unproject(mousePosition);
+        worldTimer += dt;
         if (!paused) {
             gameTimer += dt;
             if (gameTimer > 5.0f) {
@@ -126,7 +154,9 @@ public class GameScreeen implements Screen {
                 } while (!map.isAreaCleared(coordX, coordY, 16));
                 botEmitter.activate(coordX, coordY);
             }
-            playerTank.update(dt);
+            for (int i = 0; i < playerTanks.size(); i++) {
+                playerTanks.get(i).update(dt);
+            }
             botEmitter.update(dt);
             bulletEmitter.update(dt);
             checkCollisions();
@@ -150,9 +180,12 @@ public class GameScreeen implements Screen {
                         }
                     }
                 }
-                if (checkBulletOwner(playerTank, bullet) && playerTank.getCircle().contains(bullet.getPosition())) {
-                    bullet.deactivate();
-                    playerTank.takeDamage(bullet.getDamage());
+                for (int j = 0; j < playerTanks.size(); j++) {
+                    PlayerTank player = playerTanks.get(j);
+                    if (checkBulletOwner(player, bullet) && player.getCircle().contains(bullet.getPosition())) {
+                        bullet.deactivate();
+                        player.takeDamage(bullet.getDamage());
+                    }
                 }
 
                 map.checkWallAndBulletCollision(bullet);
